@@ -27,9 +27,12 @@ public with sharing class SOQL {
 	 * @return List of all leads with Id, LastName, Company, Phone, Email
 	 * Update the corresponding test class and testGetAllLeads method to cover this method
 	 */
-	//[public | private ] [static] data_type method_name (input parameters) {
-	//  The body of the method
-	//}
+	public static List<Lead> getAllLeads() {
+		return [SELECT Id, LastName, Company, Phone, Email
+				FROM Lead
+				WITH SYSTEM_MODE];
+
+	}
 
 	/**
 	 * Question 2
@@ -38,9 +41,12 @@ public with sharing class SOQL {
 	 * @return A list of Contact records.
 	 * Update the corresponding test class and testGetContactsByFirstName method to cover this method
 	 */
-	//[public | private ] [static] data_type method_name (input parameters) {
-	//  The body of the method
-	//}
+	public static List<Contact> getContactsByFirstName() {
+		return [SELECT FIELDS(STANDARD)
+				FROM Contact
+				WHERE FirstName = 'John'
+				WITH USER_MODE];
+	}
 
 	/**
 	 * Question 3
@@ -49,9 +55,12 @@ public with sharing class SOQL {
 	 * @return A list of Contact Ids.
 	 * Update the corresponding test class and testGetContactIdsByLastName method to cover this method
 	 */
-	//[public | private ] [static] data_type method_name (input parameters) {
-	//  The body of the method
-	//}
+	public static List<Contact> getContactIdsByLastName() {
+		return [SELECT Id
+				FROM Contact
+				WHERE LastName IN ('Smith', 'Jones')
+				WITH USER_MODE];
+	}
 
 	/**
 	 * Question 4
@@ -62,9 +71,12 @@ public with sharing class SOQL {
 	 * @return A list of Opportunities with important opportunities fields
 	 * Update the corresponding test class and testGetClosedWonOpportunityCountByAccount method to cover this method
 	 */
-	//[public | private ] [static] data_type method_name (input parameters) {
-	//  The body of the method
-	//}
+	public static List<Opportunity> getClosedWonOpportunityCountByAccount(Id accountId) {
+		return [SELECT FIELDS(STANDARD)
+				FROM Opportunity
+				WHERE AccountId = :accountId AND StageName = 'Closed Won'
+				WITH USER_MODE];				
+	}
 
 	/**
 	 * Question 5
@@ -73,9 +85,11 @@ public with sharing class SOQL {
 	 * @return The Integer count of Account records.
 	 * Update the corresponding test class and testGetAccountCount method to cover this method
 	 */
-	//[public | private ] [static] data_type method_name (input parameters) {
-	//  The body of the method
-	//}
+	public static Integer getAccountCount() {
+		return [SELECT Count()
+				FROM Account
+				WITH SYSTEM_MODE];
+	}
 
 	/**
 	 * Question 6
@@ -84,9 +98,15 @@ public with sharing class SOQL {
 	 * @return A map of Task Ids to Task records.
 	 * Update the corresponding test class and testGetTasksDueNextWeek method to cover this method
 	 */
-	//[public | private ] [static] data_type method_name (input parameters) {
-	//  The body of the method
-	//}
+	public static Map<Id, Task> getTasksDueNextWeek() {
+		Map<Id, Task> myTaskMap = new Map<Id, Task>(
+			[SELECT FIELDS(STANDARD)
+				FROM Task
+				WHERE ActivityDate = NEXT_N_DAYS:7
+				WITH USER_MODE]
+		);
+		return myTaskMap;
+	}
 
 	/**
 	 * Question 7
@@ -95,9 +115,12 @@ public with sharing class SOQL {
 	 * @return A list of Contact records.
 	 * Update the corresponding test class and testGetContactsByEmailDomain method to cover this method
 	 */
-	//[public | private ] [static] data_type method_name (input parameters) {
-	//  The body of the method
-	//}
+	public static List<Contact> getContactsByEmailDomain() {
+		return [SELECT FIELDS(STANDARD) 
+				FROM Contact
+				WHERE email LIKE '%example.com'
+				WITH USER_MODE];
+	}
 
 	/**
 	 * Question 8
@@ -107,7 +130,11 @@ public with sharing class SOQL {
 	 * @return A list of Opportunity records.
 	 */
 	public static List<Opportunity> getOpportunitiesByNameKeyword(String keyword) {
-		return null; // Replace null with the variable you used to store the result
+		String keywordProcessed = '%' + keyword + '%';
+		return [SELECT Id, Name
+				FROM Opportunity
+				WHERE Name LIKE :keywordProcessed
+				WITH USER_MODE]; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -116,7 +143,10 @@ public with sharing class SOQL {
 	 * @return A list of Case records.
 	 */
 	public static List<Case> getFilterCaseOrigins() {
-		return null; // Replace null with the variable you used to store the result
+		return [SELECT FIELDS(STANDARD)
+				FROM Case
+				WHERE Origin NOT IN ('Web', 'Email', '')
+				WITH USER_MODE]; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -129,9 +159,12 @@ public with sharing class SOQL {
 	 * @return A list of Lead records.
 	 * Update the corresponding test class and testGetLeadsBySourceOrTitle method to cover this method
 	 */
-	//[public | private ] [static] data_type method_name (input parameters) {
-	//  The body of the method
-	//}
+	public static List<Lead> getLeadsBySourceOrTitle(String source, String keyword) {
+		String keywordProcessed = '%' + keyword + '%';
+		return [SELECT FIELDS(STANDARD)
+				FROM Lead
+				WHERE LeadSource = :source OR Title LIKE :keywordProcessed];
+	}
 
 	/**
 	 * Question 11
@@ -142,15 +175,21 @@ public with sharing class SOQL {
 	 */
 	public static List<String> getContactNamesByAccount(Id accountId) {
 		// Create a list to hold the Contact LastNames
+		List<Contact> contactList = new List<Contact>();
+		List<String> contactName = new List<String>();
 
 		// Query the Contacts
+		contactList = [SELECT LastName
+						FROM Contact
+						WHERE AccountId = :accountId
+						WITH USER_MODE];
 		// Loop through each Contact and add the LastName to the list
-		//for () {
-		//
-		//}
+		for (Contact con : contactList) {
+			contactName.add(con.LastName);
+		}
 
 		// Return the list of Contact LastNames
-		return null; // Replace null with the variable you used to store the result
+		return contactName; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -164,7 +203,9 @@ public with sharing class SOQL {
 		// Use AggregateQuery to get the total revenue
 
 		// Return the total revenue
-		return null; // Replace null with the variable you used to store the result
+		return (Decimal) [SELECT SUM(Amount) totalRev
+				FROM Opportunity
+				WHERE StageName = :stage OR Amount > 10000 WITH USER_MODE][0].get('totalRev'); // Replace null with the variable you used to store the result
 	}
 
 	/**
