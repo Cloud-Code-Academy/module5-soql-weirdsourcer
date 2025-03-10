@@ -55,13 +55,21 @@ public with sharing class SOQL {
 	 * @return A list of Contact Ids.
 	 * Update the corresponding test class and testGetContactIdsByLastName method to cover this method
 	 */
-	public static List<Contact> getContactIdsByLastName() {
-		return [SELECT Id
-				FROM Contact
-				WHERE LastName IN ('Smith', 'Jones')
-				WITH USER_MODE];
-	}
+	public static List<Id> getContactIdsByLastName() {
+		List<Contact> myContacts =  [SELECT Id
+									FROM Contact
+									WHERE LastName IN ('Smith', 'Jones')
+									WITH USER_MODE];
 
+		List<Id> myContactIds = new List<Id>();
+		if (!myContacts.isEmpty()) {
+			for (Contact con : myContacts) {
+				myContactIds.add(con.Id);
+			}
+		}
+		return myContactIds;
+	}
+	
 	/**
 	 * Question 4
 	 * Update/Uncomment the template code to create a method
@@ -100,11 +108,12 @@ public with sharing class SOQL {
 	 */
 	public static Map<Id, Task> getTasksDueNextWeek() {
 		Map<Id, Task> myTaskMap = new Map<Id, Task>(
-			[SELECT FIELDS(STANDARD)
+			[SELECT AccountId, Status, CallType, Description
 				FROM Task
 				WHERE ActivityDate = NEXT_N_DAYS:7
 				WITH USER_MODE]
 		);
+		
 		return myTaskMap;
 	}
 
@@ -218,7 +227,8 @@ public with sharing class SOQL {
 		return [SELECT Name
 				FROM Account
 				WITH USER_MODE
-				ORDER BY Name ASC]; // Replace null with the variable you used to store the result
+				ORDER BY Name ASC
+				LIMIT 10]; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -231,7 +241,7 @@ public with sharing class SOQL {
 				FROM Opportunity
 				WHERE Amount > 100000
 				WITH USER_MODE
-				ORDER BY CloseDate DESC
+				ORDER BY CloseDate ASC
 				LIMIT 5]; // Replace null with the variable you used to store the result
 	}
 
@@ -244,7 +254,8 @@ public with sharing class SOQL {
 		return [SELECT Name, Birthdate
 				FROM Contact
 				WITH USER_MODE
-				ORDER BY Birthdate DESC]; // Replace null with the variable you used to store the result
+				ORDER BY Birthdate DESC
+				LIMIT 3]; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -257,7 +268,7 @@ public with sharing class SOQL {
 				FROM Case
 				WHERE Status = 'Open'
 				WITH USER_MODE
-				ORDER BY CreatedDate
+				ORDER BY CreatedDate ASC
 				LIMIT 10
 				OFFSET 5]; // Replace null with the variable you used to store the result
 	}
@@ -356,8 +367,7 @@ public with sharing class SOQL {
 		// Query the Contacts
 		return [SELECT Name
 				FROM Contact
-				WHERE AccountId = :accountId
-					AND MailingState = :accountBillingState
+				WHERE MailingState = :accountBillingState
 				WITH USER_MODE]; // Replace null with the variable you used to store the result
 	}
 
@@ -378,7 +388,7 @@ public with sharing class SOQL {
 
 		// Create a set of email domains from the Leads
 		//Set<String> emailDomain = new Set<String>(); //just for fun
-		String myQuerySubString = 'SELECT FIELDS(STANDARD) FROM Account WHERE Website';
+		String myQuerySubString = 'SELECT FIELDS(STANDARD) FROM Account WHERE Website LIKE' + ' \'%nothinggjhhj\''; // the + ' \'%' + 'nothinggjhhj' + '\'' is just to initiate the SOQL, don't remove
 
 		// Loop through each Lead
 
@@ -389,9 +399,9 @@ public with sharing class SOQL {
 		// Add the email domain to the set
 		for (Lead each : getLeads) {
 			if (each.Email != null) {
-				String domainNameLike = '%' + each.Email.subStringAfterLast('@');
+				String domainNameLike = ' OR Website LIKE \'%' + each.Email.substringAfterLast('@') + '\'';
 				//emailDomain.add(domainNameLike); //just for fun
-				myQuerySubString += ' OR ' + domainNameLike;
+				myQuerySubString += domainNameLike;
 			}
 		}
 
@@ -411,7 +421,7 @@ public with sharing class SOQL {
 		// Query the original Opportunity Line Items
 		// Create a list to hold the new line items
 		List<OpportunityLineItem> originalOppLineItems = [SELECT Name, ListPrice, PriceBookEntryId,
-																Product2Id, UnitPrice, ServiceDate, SortOrder
+																Product2Id, UnitPrice, ServiceDate, Description
 															FROM OpportunityLineItem
 															WHERE OpportunityId = :origOppId
 															WITH USER_MODE];
@@ -424,10 +434,17 @@ public with sharing class SOQL {
 		// Clone the original line item and add the random number to the quantity
 		List<OpportunityLineItem> oppLineItemToInsert = new List<OpportunityLineItem>();
 		for (Id oppId : cloneOppIds) {
-			for (OpportunityLineItem lineItem : originalOppLineItems) {
-				lineItem.Quantity = myRandNum;
-				lineItem.OpportunityId = oppId;
-				oppLineItemToInsert.add(lineItem);
+			for (OpportunityLineItem clonedLineItem : originalOppLineItems) {
+				OpportunityLineItem newLineItem = new OpportunityLineItem();
+				newLineItem.Quantity = myRandNum;
+				newLineItem.OpportunityId = oppId;
+				newLineItem.Description = clonedLineItem.Description;
+				newLineItem.UnitPrice = clonedLineItem.UnitPrice;
+				newLineItem.Product2Id = clonedLineItem.Product2Id;
+				newLineItem.PricebookEntryId = clonedLineItem.PricebookEntryId;
+				newLineItem.ServiceDate = clonedLineItem.ServiceDate;
+				//newLineItem.RelatedRecord = clonedLineItem.RelatedRecord;		
+				oppLineItemToInsert.add(newLineItem);
 			}
 		}
 		// Insert the new line items
@@ -440,7 +457,7 @@ public with sharing class SOQL {
 	 * @return A list of filtered Opportunity
 	 */
 	public static List<Opportunity> getOpportunityDetailsForClosedWon() {
-		return [SELECT Id, Name, AccountId, Account.Name, Owner.Name FROM Opportunity WHERE StageName = 'Closed Won' WITH USER_MODE]; // Replace null with the variable you used to store the result
+		return [SELECT Name, Account.Name, Owner.Name FROM Opportunity WHERE StageName = 'Closed Won' WITH USER_MODE]; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -450,7 +467,7 @@ public with sharing class SOQL {
 	 */
 	public static void setPrimaryContact() {
 		//Use the getOpportunityDetailsForClosedWon() method to get the Opportunities
-		List<Opportunity> myOppList = getOpportunityDetailsForClosedWon();
+		List<Opportunity> myOppList = [SELECT Name, AccountId FROM Opportunity WHERE StageName = 'Closed Won' WITH USER_MODE];
 
 		// Create a set of Account Ids from the Opportunities
 		Set<Id> accountIds = new Set<id>();
@@ -460,7 +477,7 @@ public with sharing class SOQL {
 
 		// Query the Contacts
 		List<Account> myAccountsWithContacts = [SELECT 
-													(SELECT Id, Name, AccountId
+													(SELECT Id,AccountId
 													FROM Contacts
 													ORDER BY Name ASC
 													LIMIT 1)
