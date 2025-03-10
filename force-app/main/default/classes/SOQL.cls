@@ -388,7 +388,7 @@ public with sharing class SOQL {
 
 		// Create a set of email domains from the Leads
 		//Set<String> emailDomain = new Set<String>(); //just for fun
-		String myQuerySubString = 'SELECT FIELDS(STANDARD) FROM Account WHERE Website LIKE' + ' \'%nothinggjhhj\''; // the + ' \'%' + 'nothinggjhhj' + '\'' is just to initiate the SOQL, don't remove
+		String myQuerySubString = 'SELECT FIELDS(STANDARD) FROM Account WHERE Website LIKE \'%nothinggjhhj\''; // the + ' \'%' + 'nothinggjhhj' + '\'' is just to initiate the SOQL, don't remove
 
 		// Loop through each Lead
 
