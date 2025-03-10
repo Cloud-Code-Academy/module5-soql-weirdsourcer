@@ -94,7 +94,7 @@ public with sharing class SOQL {
 	 * Update the corresponding test class and testGetAccountCount method to cover this method
 	 */
 	public static Integer getAccountCount() {
-		return (Integer) [SELECT Count(Id) totalCount
+		return (Integer) [SELECT COUNT(Id) totalCount
 				FROM Account
 				WITH SYSTEM_MODE][0].get('totalCount');
 	}
@@ -383,7 +383,7 @@ public with sharing class SOQL {
 		// Query the Leads
 		List<Lead> getLeads = [SELECT FIELDS(STANDARD)
 								FROM Lead
-								WHERE Id = :leadIds
+								WHERE Id IN :leadIds
 								WITH USER_MODE];
 
 		// Create a set of email domains from the Leads
@@ -406,7 +406,7 @@ public with sharing class SOQL {
 		}
 
 		// Query the Accounts
-		return Database.query(myQuerySubString, AccessLevel.USER_MODE); // Replace null with the variable you used to store the result
+		return Database.query(myQuerySubString, AccessLevel.SYSTEM_MODE); // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -427,7 +427,7 @@ public with sharing class SOQL {
 															WITH USER_MODE];
 
 		// Generate a random number between 1 and 3
-		Integer myRandNum = (Integer) (Math.random() * 4);
+		Integer myRandNum = (Integer) Math.ceil((Math.random() * 3));
 
 		// Loop through each cloned Opportunity Id
 		// Loop through each original line item
