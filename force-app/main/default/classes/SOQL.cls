@@ -388,7 +388,7 @@ public with sharing class SOQL {
 
 		// Create a set of email domains from the Leads
 		//Set<String> emailDomain = new Set<String>(); //just for fun
-		String myQuerySubString = 'SELECT FIELDS(STANDARD) FROM Account WHERE Website LIKE \'%nothinggjhhj\''; // the + ' \'%' + 'nothinggjhhj' + '\'' is just to initiate the SOQL, don't remove
+		String myQuerySubString = 'SELECT FIELDS(STANDARD) FROM Account WHERE Website LIKE'; 
 
 		// Loop through each Lead
 
@@ -397,12 +397,14 @@ public with sharing class SOQL {
 		// Check if the email is not null
 
 		// Add the email domain to the set
-		for (Lead each : getLeads) {
-			if (each.Email != null) {
-				String domainNameLike = ' OR Website LIKE \'%' + each.Email.substringAfterLast('@') + '\'';
-				//emailDomain.add(domainNameLike); //just for fun
-				myQuerySubString += domainNameLike;
+		for (Integer i = 0; i < getLeads.size(); i++) {
+			String domainNameLike;
+			if (getLeads[i] != null && i == 0) {
+				domainNameLike = ' \'%' + getLeads[i].Email.substringAfterLast('@') + '\'';
+			} else if (getLeads[i] != null && i > 0) {
+				domainNameLike = ' OR Website LIKE \'%' + getLeads[i].Email.substringAfterLast('@') + '\'';
 			}
+			myQuerySubString += domainNameLike;
 		}
 
 		// Query the Accounts
@@ -414,7 +416,6 @@ public with sharing class SOQL {
 	 * Clones and Inserts Opportunity Line Items from an original Opportunity to a list of cloned Opportunities.
 	 * Adds a randomized number between 1 to 3 to the quantity of each line item.
 	 * Example: cloneLineItems('001XXXXXXXXXXXX', [list of opportunity ids]) should clone the line items from the Opportunity with the Id to each Opportunity in the list
-	 * @param Original Opportunity Id
 	 * @param List of cloned Opportunity Ids
 	 */
 	public static void cloneLineItems(Id origOppId, List<Id> cloneOppIds) {
