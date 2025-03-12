@@ -466,7 +466,7 @@ public with sharing class SOQL {
 	 */
 	public static void setPrimaryContact() {
 		//Use the getOpportunityDetailsForClosedWon() method to get the Opportunities
-		List<Opportunity> myOppList = [SELECT Name, AccountId FROM Opportunity WHERE StageName = 'Closed Won' WITH USER_MODE];
+		List<Opportunity> myOppList = [SELECT Name, AccountId FROM Opportunity WHERE StageName = 'Closed Won' WITH SYSTEM_MODE];
 
 		// Create a set of Account Ids from the Opportunities
 		Set<Id> accountIds = new Set<id>();
@@ -482,7 +482,7 @@ public with sharing class SOQL {
 													LIMIT 1)
 												FROM Account
 												WHERE Id IN :accountIds
-												WITH USER_MODE];
+												WITH SYSTEM_MODE];
 
 		// Loop through each Contact and add the Account Id and Contact to the map
 		Map<Id, Id> accountIdToConIdMap = new Map<Id, Id>();
@@ -500,6 +500,6 @@ public with sharing class SOQL {
 		}
 
 		// Update the Opportunities
-		Database.update(myOppList, AccessLevel.USER_MODE);
+		Database.update(myOppList, AccessLevel.SYSTEM_MODE);
 	}
 }
