@@ -56,16 +56,14 @@ public with sharing class SOQL {
 	 * Update the corresponding test class and testGetContactIdsByLastName method to cover this method
 	 */
 	public static List<Id> getContactIdsByLastName() {
-		List<Contact> myContacts =  [SELECT Id
+		List<Contact> myContacts =  [SELECT Id, LastName
 									FROM Contact
 									WHERE LastName IN ('Smith', 'Jones')
 									WITH USER_MODE];
 
 		List<Id> myContactIds = new List<Id>();
-		if (!myContacts.isEmpty()) {
-			for (Contact con : myContacts) {
-				myContactIds.add(con.Id);
-			}
+		for (Contact con : myContacts) {
+			myContactIds.add(con.Id);
 		}
 		return myContactIds;
 	}
@@ -82,7 +80,7 @@ public with sharing class SOQL {
 	public static List<Opportunity> getClosedWonOpportunityCountByAccount(Id accountId) {
 		return [SELECT FIELDS(STANDARD)
 				FROM Opportunity
-				WHERE AccountId = :accountId AND StageName = 'Closed Won'
+				WHERE AccountId = :accountId AND IsWon = true
 				WITH USER_MODE];				
 	}
 
