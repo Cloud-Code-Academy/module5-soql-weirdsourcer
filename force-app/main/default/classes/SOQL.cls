@@ -187,12 +187,15 @@ public with sharing class SOQL {
 		List<String> contactName = new List<String>();
 
 		// Query the Contacts
-		contactList = [SELECT LastName
+		/*contactList = [SELECT LastName
 						FROM Contact
 						WHERE AccountId = :accountId
-						WITH USER_MODE];
+						WITH USER_MODE];*/
 		// Loop through each Contact and add the LastName to the list
-		for (Contact con : contactList) {
+		for (Contact con : [SELECT LastName
+							FROM Contact
+							WHERE AccountId = :accountId
+							WITH USER_MODE]) {
 			contactName.add(con.LastName);
 		}
 
@@ -211,9 +214,11 @@ public with sharing class SOQL {
 		// Use AggregateQuery to get the total revenue
 
 		// Return the total revenue
-		return (Decimal) [SELECT SUM(Amount) totalRev
-				FROM Opportunity
-				WHERE StageName = :stage OR Amount > 10000 WITH USER_MODE][0].get('totalRev'); // Replace null with the variable you used to store the result
+		List<AggregateResult> totalRevenue = [SELECT SUM(Amount) totalRev
+											FROM Opportunity
+											WHERE StageName = :stage OR Amount > 10000 WITH USER_MODE];
+				
+		return (Decimal) totalRevenue[0].get('totalRev');// Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -466,7 +471,7 @@ public with sharing class SOQL {
 	 */
 	public static void setPrimaryContact() {
 		//Use the getOpportunityDetailsForClosedWon() method to get the Opportunities
-		List<Opportunity> myOppList = [SELECT Name, AccountId FROM Opportunity WHERE StageName = 'Closed Won' WITH SYSTEM_MODE];
+		List<Opportunity> myOppList = getOpportunityDetailsForClosedWon();
 
 		// Create a set of Account Ids from the Opportunities
 		Set<Id> accountIds = new Set<id>();
