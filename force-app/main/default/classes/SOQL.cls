@@ -183,7 +183,7 @@ public with sharing class SOQL {
 	 */
 	public static List<String> getContactNamesByAccount(Id accountId) {
 		// Create a list to hold the Contact LastNames
-		List<Contact> contactList = new List<Contact>();
+		//List<Contact> contactList = new List<Contact>();
 		List<String> contactName = new List<String>();
 
 		// Query the Contacts
