@@ -411,7 +411,7 @@ public with sharing class SOQL {
 		}
 
 		// Query the Accounts
-		return Database.query(myQuerySubString, AccessLevel.SYSTEM_MODE); // Replace null with the variable you used to store the result
+		return (List<Account>) Database.query(myQuerySubString, AccessLevel.SYSTEM_MODE); // Replace null with the variable you used to store the result
 	}
 
 	/**
