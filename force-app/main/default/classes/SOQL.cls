@@ -403,9 +403,9 @@ public with sharing class SOQL {
 		for (Integer i = 0; i < getLeads.size(); i++) {
 			String domainNameLike;
 			if (i == 0) {
-				domainNameLike = ' \'%' + getLeads[i].Email.substringAfterLast('@') + '\'';
+				domainNameLike = ' \'%' + String.escapeSingleQuotes(getLeads[i].Email.substringAfterLast('@')) + '\'';
 			} else if (i > 0) {
-				domainNameLike = ' OR Website LIKE \'%' + getLeads[i].Email.substringAfterLast('@') + '\'';
+				domainNameLike = ' OR Website LIKE \'%' + String.escapeSingleQuotes(getLeads[i].Email.substringAfterLast('@')) + '\'';
 			}
 			myQuerySubString += domainNameLike;
 		}
