@@ -332,7 +332,7 @@ public with sharing class SOQL {
 	 * @return The Account Name of the Contact.
 	 */
 	public static String getAccountNameForContact(String contactId) {
-		return [SELECT Account.Name FROM Contact WHERE Id = :contactId WITH USER_MODE][0].Account.Name; // Replace null with the variable you used to store the result
+		return [SELECT Account.Name FROM Contact WHERE Id = :contactId WITH USER_MODE LIMIT 1].Account.Name; // Replace null with the variable you used to store the result
 	}
 
 	/**
@@ -384,14 +384,14 @@ public with sharing class SOQL {
 	 */
 	public static List<Account> findAccountsByLeadEmailDomains(Set<Id> leadIds) {
 		// Query the Leads
-		List<Lead> getLeads = [SELECT FIELDS(STANDARD)
+		List<Lead> getLeads = [SELECT Id, Email
 								FROM Lead
 								WHERE Id IN :leadIds
 								WITH USER_MODE];
 
 		// Create a set of email domains from the Leads
 		//Set<String> emailDomain = new Set<String>(); //just for fun
-		String myQuerySubString = 'SELECT FIELDS(STANDARD) FROM Account WHERE Website LIKE'; 
+		String myQuerySubString = 'SELECT Id, Email FROM Account WHERE Website LIKE'; 
 
 		// Loop through each Lead
 
