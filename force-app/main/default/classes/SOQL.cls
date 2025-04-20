@@ -402,9 +402,9 @@ public with sharing class SOQL {
 		// Add the email domain to the set
 		for (Integer i = 0; i < getLeads.size(); i++) {
 			String domainNameLike;
-			if (i == 0) {
+			if (getLeads[i] != null && i == 0) {
 				domainNameLike = ' \'%' + getLeads[i].Email.substringAfterLast('@') + '\'';
-			} else if (i > 0) {
+			} else if (getLeads[i] != null && i > 0) {
 				domainNameLike = ' OR Website LIKE \'%' + getLeads[i].Email.substringAfterLast('@') + '\'';
 			}
 			myQuerySubString += domainNameLike;
@@ -492,7 +492,10 @@ public with sharing class SOQL {
 		// Loop through each Contact and add the Account Id and Contact to the map
 		Map<Id, Id> accountIdToConIdMap = new Map<Id, Id>();
 		for (Account acc : myAccountsWithContacts) {
-				accountIdToConIdMap.put(acc.Id, acc.Contacts[0].Id);			
+			if (!acc.Contacts.isEmpty()) {
+				accountIdToConIdMap.put(acc.Id, acc.Contacts[0].Id);
+			}
+			
 		}
 
 		// Loop through each Opportunity
