@@ -384,14 +384,14 @@ public with sharing class SOQL {
 	 */
 	public static List<Account> findAccountsByLeadEmailDomains(Set<Id> leadIds) {
 		// Query the Leads
-		List<Lead> getLeads = [SELECT Id, Name
+		List<Lead> getLeads = [SELECT Id, Email
 								FROM Lead
 								WHERE Id IN :leadIds
 								WITH USER_MODE];
 
 		// Create a set of email domains from the Leads
 		//Set<String> emailDomain = new Set<String>(); //just for fun
-		String myQuerySubString = 'SELECT Id, Email FROM Account WHERE Website LIKE'; 
+		String myQuerySubString = 'SELECT Id, Name, Website FROM Account WHERE Website LIKE'; 
 
 		// Loop through each Lead
 
