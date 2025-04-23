@@ -384,7 +384,7 @@ public with sharing class SOQL {
 	 */
 	public static List<Account> findAccountsByLeadEmailDomains(Set<Id> leadIds) {
 		// Query the Leads
-		List<Lead> getLeads = [SELECT FIELDS(STANDARD)
+		List<Lead> getLeads = [SELECT Id, Email
 								FROM Lead
 								WHERE Id IN :leadIds
 								WITH USER_MODE];
